@@ -1,3 +1,8 @@
+EXERCICIO 1:
+
+<img title="exercicio 1" src="./assets/exercicio1.png" alt="exercicio1" width="100%"/>
+
+
 # IFgram API (com Spring Security, JPA e H2)
 
 Este projeto é um exemplo simples de API feita com **Spring Boot**.  
