@@ -1,50 +1,43 @@
-# IFgram API com Spring Security
+# IFgram API (com Spring Security, JPA e H2)
 
-Este é um projetinho de API feito em **Spring Boot** com autenticação usando **Spring Security**.  
-Ele serve como exemplo de como criar endpoints com login, cadastro de usuário e posts protegidos por token.
+Este projeto é um exemplo simples de API feita com **Spring Boot**.  
+Tem autenticação com **Spring Security** (token Bearer HMAC), banco **H2 em memória** e CRUD de **posts**.
+
+## O que tem
+- `POST /auth/signup` → cria usuário e já retorna token
+- `POST /auth/login` → faz login e retorna token
+- `GET /health` → só pra ver se a API está no ar (público)
+- `GET /posts` → lista posts (precisa de token)
+- `GET /posts/{id}` → pega 1 post (precisa de token)
+- `POST /posts` → cria post (precisa de token)
+- `PUT /posts/{id}` → atualiza tudo (precisa de token)
+- `PATCH /posts/{id}` → atualiza parte (precisa de token)
+- `DELETE /posts/{id}` → remove (precisa de token)
+
+## Requisitos
+- **Java 17** ou mais
+- **Maven**
 
 ## Como rodar
+Dentro da pasta do projeto, execute:
+```
+mvn clean package -DskipTests
+java -jar target/ifgram-complete-api-0.0.1-SNAPSHOT.jar
+```
+ou, se preferir:
+```
+mvn spring-boot:run
+```
 
-1. Primeiro precisa ter o **Java 17** instalado.  
-   Para ver a versão:
-   ```
-   java -version
-   ```
-   Se aparecer 17 ou mais, já está ok.
+A API sobe em `http://localhost:8080`  
+Teste rápido:
+```
+GET http://localhost:8080/health
+```
+Deve retornar `{"status":"UP"}`.
 
-2. Precisa também do **Maven**. Para ver se tem:
-   ```
-   mvn -v
-   ```
-
-3. Depois que baixar este repositório, entra na pasta do projeto:
-   ```
-   cd ifgram-api-spring-security-v2
-   ```
-
-4. Para compilar e rodar tem duas opções:
-
-   **Opção 1 (rodar o jar):**
-   ```
-   mvn clean package -DskipTests
-   java -jar target/ifgram-secured-api-0.0.1-SNAPSHOT.jar
-   ```
-
-   **Opção 2 (mais simples):**
-   ```
-   mvn spring-boot:run
-   ```
-
-5. A aplicação vai rodar na porta **8080**.  
-   Para testar se subiu, abre no navegador ou usa curl:
-   ```
-   http://localhost:8080/health
-   ```
-   Deve aparecer `{"status":"UP"}`.
-
-## Como usar a API
-
-### Criar usuário
+## Como usar (exemplos)
+### 1) Criar usuário (signup)
 ```
 POST http://localhost:8080/auth/signup
 Content-Type: application/json
@@ -55,9 +48,9 @@ Content-Type: application/json
   "telefone": "123456789"
 }
 ```
-Resposta: vai vir os dados do usuário e também um **token**.
+→ Resposta `201` com `token` e dados do usuário.
 
-### Fazer login
+### 2) Fazer login
 ```
 POST http://localhost:8080/auth/login
 Content-Type: application/json
@@ -67,21 +60,19 @@ Content-Type: application/json
   "password": "senha123"
 }
 ```
-Resposta: `{ "token": "...", "expiresIn": 3600 }`
+→ Resposta `200` com `{ "token": "...", "expiresIn": 3600 }`.
 
-### Usar o token nas rotas de posts
-Depois de pegar o token, precisa mandar no header:
+### 3) Listar posts (com token)
+Coloque o header:
 ```
 Authorization: Bearer SEU_TOKEN_AQUI
 ```
-
-Exemplo para listar posts:
+Chame:
 ```
 GET http://localhost:8080/posts
-Authorization: Bearer SEU_TOKEN_AQUI
 ```
 
-Exemplo para criar post:
+### 4) Criar post
 ```
 POST http://localhost:8080/posts
 Authorization: Bearer SEU_TOKEN_AQUI
@@ -93,14 +84,24 @@ Content-Type: application/json
 }
 ```
 
-## Endpoints principais
+## Banco de dados
+- Usa **H2 em memória** (não precisa instalar nada).
+- Console do H2: `http://localhost:8080/h2-console`
+  - JDBC URL: `jdbc:h2:mem:ifgramdb`
+  - User: `sa` / senha em branco
 
-- GET /health → só pra testar se está rodando  
-- POST /auth/signup → cria usuário e já retorna token  
-- POST /auth/login → faz login e retorna token  
-- GET /posts → lista posts (precisa de token)  
-- POST /posts → cria post (precisa de token)  
-- GET /posts/{id} → pega um post específico  
-- PUT /posts/{id} → atualiza tudo do post  
-- PATCH /posts/{id} → atualiza só parte do post  
-- DELETE /posts/{id} → deleta um post  
+## Estrutura do código
+- `entity/` → classes do banco (`User`, `Post`)
+- `repository/` → `JpaRepository` para `User` e `Post`
+- `service/` → regras simples de negócio (`UserService`, `PostService`)
+- `controller/` → rotas HTTP (`AuthController`, `PostController`, `HealthController`)
+- `security/` → `TokenService` (HMAC) e filtro `BearerTokenFilter`
+- `config/` → `SecurityConfig` (stateless + liberação do /auth e /health)
+
+## Dicas
+- Se der erro de versão, veja se seu Java é **17+** (`java -version`).
+- Se der `403` no `/auth/signup`, confira se o método é `POST` e se o **Content-Type** é `application/json`.
+- Se der `401` nas rotas de `/posts`, verifique se o **Authorization** está correto: `Bearer SEU_TOKEN_AQUI`.
+
+## Importante
+Este token HMAC é didático. Em produção, use **JWT** de verdade e um segredo em variável de ambiente.

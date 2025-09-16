@@ -1,13 +1,12 @@
 
 package com.ifgram.api.security;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.Optional;
-
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -23,7 +22,8 @@ public class TokenService {
         try{
             Mac mac = Mac.getInstance("HmacSHA256");
             mac.init(new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
-            return Base64.getUrlEncoder().withoutPadding().encodeToString(mac.doFinal(data.getBytes(StandardCharsets.UTF_8)));
+            return Base64.getUrlEncoder().withoutPadding()
+                    .encodeToString(mac.doFinal(data.getBytes(StandardCharsets.UTF_8)));
         }catch(Exception e){ throw new RuntimeException(e); }
     }
 
@@ -37,16 +37,14 @@ public class TokenService {
     public Optional<String> verify(String tokenEncoded){
         try{
             String token = new String(Base64.getUrlDecoder().decode(tokenEncoded), StandardCharsets.UTF_8);
-            String[] parts = token.split("\\.");
+            String[] parts = token.split("\.");
             if (parts.length != 3) return Optional.empty();
             String payload = parts[0] + "." + parts[1];
             if (!sign(payload).equals(parts[2])) return Optional.empty();
             long exp = Long.parseLong(parts[1]);
             if (exp < Instant.now().getEpochSecond()) return Optional.empty();
             return Optional.of(parts[0]);
-        }catch(Exception e){
-            return Optional.empty();
-        }
+        }catch(Exception e){ return Optional.empty(); }
     }
 
     public long getTtlSeconds(){ return ttlSeconds; }
