@@ -1,0 +1,11 @@
+/home/camile/workspace/java-spring-project/src/main/java/com/ifgram/api/IfgramApplication.java
+/home/camile/workspace/java-spring-project/src/main/java/com/ifgram/api/config/SecurityConfig.java
+/home/camile/workspace/java-spring-project/src/main/java/com/ifgram/api/controller/HealthController.java
+/home/camile/workspace/java-spring-project/src/main/java/com/ifgram/api/dto/AuthDtos.java
+/home/camile/workspace/java-spring-project/src/main/java/com/ifgram/api/dto/PostDtos.java
+/home/camile/workspace/java-spring-project/src/main/java/com/ifgram/api/model/Post.java
+/home/camile/workspace/java-spring-project/src/main/java/com/ifgram/api/model/User.java
+/home/camile/workspace/java-spring-project/src/main/java/com/ifgram/api/repo/InMemoryPostRepo.java
+/home/camile/workspace/java-spring-project/src/main/java/com/ifgram/api/repo/InMemoryUserRepo.java
+/home/camile/workspace/java-spring-project/src/main/java/com/ifgram/api/security/BearerTokenFilter.java
+/home/camile/workspace/java-spring-project/src/main/java/com/ifgram/api/security/TokenService.java
